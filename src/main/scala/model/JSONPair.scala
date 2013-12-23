@@ -5,12 +5,31 @@ package main.scala.model
  *
  * @author mehmetakiftutuncu
  */
-abstract class JSONPair[T](val key: String, val value: T) extends JSON
+case class JSONPair(pair: (String, Any))
 {
   /**
    * Gives a JSON formatted String representation of this pair
    *
-   * @return JSON formatted String representation of this pair
+   * @return
+   *         JSON formatted String representation of this pair
    */
-  override def toString: String = toJSON
+  def toJSON: String = "\"" + pair._1 + "\":" + getFormattedValue(pair._2)
+
+  /**
+   * Gets the value with or without the enclosing quotes according to it's type
+   *
+   * @param value
+   *              A value to match the type
+   * @return
+   *         Value with or without the enclosing quotes according to it's type
+   */
+  private def getFormattedValue(value: Any): String = value match
+  {
+    case v: Char => "\"" + v + "\""
+    case v: String => "\"" + v + "\""
+    case v: MatSON => v.toJSON
+    case _ => value.toString
+  }
+
+  override def toString = toJSON
 }
