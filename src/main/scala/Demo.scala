@@ -10,34 +10,25 @@ import main.scala.model._
 case class DummyUser(name: String, age: Integer, isMale: Boolean) extends JSON
 {
   /**
-   * Converts this object to a JSON formatted String representation
+   * Converts this object to a JSON representation
    *
    * @return
-   *         JSON formatted String representation of this object
+   *         JSON representation of this object
    */
-  def toJSON: String = MatSON("name" -> name, "age" -> age, "isMale" -> isMale).toJSON
-
-  def fromJSON(json: String): DummyUser = ???
+  def toJSON: MatSON = MatSON("name" -> name, "age" -> age, "isMale" -> isMale)
 }
 
 object DummyUser
 {
   /**
-   * Constructs the object from the given JSON formatted String representation
+   * Constructs the object from the given JSON representation
    *
    * @param json
-   *             JSON formatted String representation of an object
+   *             JSON representation of an object
    * @return
-   *         Object constructed from the given JSON formatted String representation
+   *         Object constructed from the given JSON representation
    */
-  def fromJSON(json: String) =
-  {
-    (MatSON.getElement(json, "name"), MatSON.getElement(json, "age"), MatSON.getElement(json, "isMale")) match
-    {
-      case (Some(name), Some(age), Some(isMale)) => DummyUser(name, age.toInt, isMale.toBoolean)
-      case _ => None
-    }
-  }
+  def fromJSON(json: MatSON): DummyUser = DummyUser((json / "name").asInstanceOf[String], (json / "age").asInstanceOf[Int], (json / "isMale").asInstanceOf[Boolean])
 }
 
 /**
@@ -49,27 +40,21 @@ object Demo
 {
   def main(args: Array[String]): Unit =
   {
-    val user = DummyUser("Akif", 22, isMale = true)
-    println(user.toJSON)
-
-    val userJson = MatSON("name" -> "Akif", "age" -> 22)
+    val userJson = DummyUser("Akif", 22, isMale = true).toJSON
     val loginJson = MatSON("user" -> userJson, "timestamp" -> System.currentTimeMillis())
-    println("Login json " + loginJson)
+
+    println("Login json\n" + loginJson)
     println()
 
-    val json = user.toJSON
-    println("Finding elements in json")
-    println("name -> " + MatSON.getElement(json, "name"))
-    println("age -> " + MatSON.getElement(json, "age"))
-    println("isMale -> " + MatSON.getElement(json, "isMale"))
-    println()
-    println("Finding elements in login json")
-    println("name -> " + MatSON.getElement(loginJson.toJSON, "name"))
-    println("timestamp -> " + MatSON.getElement(loginJson.toJSON, "timestamp"))
+    println("timestamp field in login json\n" + loginJson / "timestamp")
     println()
 
-    println("Converting user back from json")
-    val newUser = DummyUser.fromJSON(json)
-    println("New user " + newUser)
+    println("user field in login json\n" + loginJson / "user")
+    println()
+
+    println("name field in user in login json\n" + (loginJson / "user").asInstanceOf[MatSON] / "name")
+    println()
+
+    println("user created back from it\'s json " + DummyUser.fromJSON(userJson))
   }
 }

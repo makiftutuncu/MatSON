@@ -8,22 +8,12 @@ package main.scala.model
 trait JSON
 {
   /**
-   * Converts this object to a JSON formatted String representation
+   * Converts this object to a JSON representation
    *
    * @return
-   *         JSON formatted String representation of this object
+   *         JSON representation of this object
    */
-  def toJSON: String
+  def toJSON: MatSON
 
-  /**
-   * Constructs the object from the given JSON formatted String representation
-   *
-   * @param json
-   *             JSON formatted String representation of an object
-   * @return
-   *         Object constructed from the given JSON formatted String representation
-   */
-  def fromJSON(json: String): AnyRef
-
-  override def toString = toJSON
+  override def toString = toJSON.toString
 }

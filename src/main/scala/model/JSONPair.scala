@@ -7,6 +7,9 @@ package main.scala.model
  */
 case class JSONPair(pair: (String, Any))
 {
+  def key: String = pair._1
+  def value: Any = pair._2
+
   /**
    * Gives a JSON formatted String representation of this pair
    *

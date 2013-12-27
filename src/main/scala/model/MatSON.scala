@@ -1,5 +1,7 @@
 package main.scala.model
 
+import scala.collection.mutable
+
 /**
  * A simple JSON library
  *
@@ -10,10 +12,10 @@ case class MatSON(pairs: (String, Any)*)
   /**
    * Represents the fields of an object as a sequence of JSONPair
    */
-  val fields: Seq[JSONPair] = pairs.map
-  {
-    case (key, value) => JSONPair(key, value)
-  }
+  var fields: mutable.HashSet[JSONPair] = new mutable.HashSet[JSONPair]
+
+  // Put given pairs into the map
+  pairs.foreach(p => fields += JSONPair(p._1, p._2))
 
   /**
    * Converts this object to a JSON formatted String representation
@@ -30,39 +32,18 @@ case class MatSON(pairs: (String, Any)*)
    *                Name of the element whose value will be returned
    *
    * @return
-   *         The value of given element
+   *         The value of given element or None
    */
-  def getElement(element: String) = MatSON.getElement(toJSON, element)
+  def getElement(element: String): Any =
+  {
+    fields.find(p => p.key == element) match
+    {
+      //case Some(pair: JSONPair) => MatSON(pair.key -> pair.value)
+      case Some(pair: JSONPair) => pair.value
+      case _ => throw new NoSuchElementException("There is no element with key \"" + element + "\"!")
+    }
+  }
+  def /(element: String) = getElement(element)
 
   override def toString = toJSON
-}
-
-object MatSON
-{
-  /**
-   * Gets the value of given element in the given JSON formatted String
-   *
-   * @param json
-   *             JSON formatted String in which the given element will be returned
-   * @param element
-   *                Name of the element whose value will be returned
-   *
-   * @return
-   *         The value of given element
-   */
-  def getElement(json: String, element: String) =
-  {
-    // Format is like following "<key>":["]<value>["][,] where [] denotes optional
-    val pairPattern = "\"(\\w+)\":\"?(\\w+)\"?,?".r
-
-    val result = pairPattern.findAllIn(json).matchData.filter(matchedPair => matchedPair.group(1) == element)
-
-    if(!result.isEmpty)
-      Option(result.next().group(2))
-    else
-      None
-
-    // This pattern looks like it can divide JSON into it's pairs, so keep it here. :)
-    // {(\"\\w+\":\"?\\w+\"?,?)*}
-  }
 }
